@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  database:
+    container_name: stac-db
+    image: ghcr.io/stac-utils/pgstac:v0.3.4
+    environment:
+      - POSTGRES_USER=username
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=postgis
+    ports:
+      - "5432:5432"
+    command: postgres -N 500
+
+  migration:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - POSTGRES_CONNECTION_STRING=postgresql://username:password@database:5432/postgis
+    command: >
+      bash -c "./scripts/wait-for-it.sh database:5432 && alembic upgrade head"
+    depends_on:
+      - database
+
+networks:
+  default:
+    name: stac-sqlalchemy-network
