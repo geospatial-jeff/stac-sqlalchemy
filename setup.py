@@ -15,7 +15,7 @@ extras = {
     ],
 }
 
-install_requires: List[str] = []
+install_requires: List[str] = ["psycopg2-binary"]
 
 setup(
     name="stac-sqlalchemy",
