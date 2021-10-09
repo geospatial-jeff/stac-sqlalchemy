@@ -1,3 +1,4 @@
+import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
@@ -24,6 +25,23 @@ target_metadata = None
 # ... etc.
 
 
+def get_connection_url() -> str:
+    """
+    Get connection URL from environment variables
+    (see environment variables set in docker-compose)
+    """
+    postgres_connection_string = os.environ.get("POSTGRES_CONNECTION_STRING")
+    if postgres_connection_string:
+        return postgres_connection_string
+
+    postgres_user = os.environ["POSTGRES_USER"]
+    postgres_pass = os.environ["POSTGRES_PASS"]
+    postgres_host = os.environ["POSTGRES_HOST"]
+    postgres_port = os.environ["POSTGRES_PORT"]
+    postgres_dbname = os.environ["POSTGRES_DBNAME"]
+    return f"postgresql://{postgres_user}:{postgres_pass}@{postgres_host}:{postgres_port}/{postgres_dbname}"
+
+
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -36,7 +54,7 @@ def run_migrations_offline():
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = get_connection_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -55,6 +73,8 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
+    configuration = config.get_section(config.config_ini_section)
+    configuration["sqlalchemy.url"] = get_connection_url()
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
