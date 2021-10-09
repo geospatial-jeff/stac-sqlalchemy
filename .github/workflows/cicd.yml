@@ -47,15 +47,11 @@ jobs:
         run: |
           pip install -e .[dev]
 
-#      - name: Run migration
-#        run: |
-#          cd stac_fastapi/sqlalchemy && alembic upgrade head
-#        env:
-#          POSTGRES_USER: username
-#          POSTGRES_PASS: password
-#          POSTGRES_DBNAME: postgis
-#          POSTGRES_HOST: localhost
-#          POSTGRES_PORT: 5432
+      - name: Run migration
+        run: |
+          alembic upgrade head
+        env:
+          POSTGRES_CONNECTION_STRING: postgresql://username:password@localhost:5432/postgis
 
       - name: Run test suite
         run: |
