@@ -1,0 +1,70 @@
+name: stac-sqlalchemy
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      db_service:
+        image: bitner/pgstac:0.2.7
+        env:
+          POSTGRES_USER: username
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: postgis
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          ALLOW_IP_RANGE: 0.0.0.0/0
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 10s
+          --health-retries 10
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      # Setup Python (faster than using Python container)
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Lint code
+        uses: pre-commit/action@v2.0.0
+
+      - name: Install library
+        run: |
+          pip install -e .[dev]
+
+#      - name: Run migration
+#        run: |
+#          cd stac_fastapi/sqlalchemy && alembic upgrade head
+#        env:
+#          POSTGRES_USER: username
+#          POSTGRES_PASS: password
+#          POSTGRES_DBNAME: postgis
+#          POSTGRES_HOST: localhost
+#          POSTGRES_PORT: 5432
+
+      - name: Run test suite
+        run: |
+          pytest -svvv
+        env:
+          ENVIRONMENT: testing
+          POSTGRES_USER: username
+          POSTGRES_PASS: password
+          POSTGRES_DBNAME: postgis
+          POSTGRES_HOST_READER: localhost
+          POSTGRES_HOST_WRITER: localhost
+          POSTGRES_PORT: 5432
