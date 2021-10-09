@@ -8,6 +8,7 @@ extras = {
         "pytest<5.4",
         "pytest-asyncio<0.11.0",
         "pytest-cov",
+        "pre-commit"
     ],
 }
 
