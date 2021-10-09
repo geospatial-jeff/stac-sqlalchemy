@@ -1,18 +1,15 @@
+from typing import List
+
 from setuptools import find_packages, setup
 
 with open("README.md") as f:
     desc = f.read()
 
 extras = {
-    "dev": [
-        "pytest<5.4",
-        "pytest-asyncio<0.11.0",
-        "pytest-cov",
-        "pre-commit"
-    ],
+    "dev": ["pytest<5.4", "pytest-asyncio<0.11.0", "pytest-cov", "pre-commit"],
 }
 
-install_requires = []
+install_requires: List[str] = []
 
 setup(
     name="stac-sqlalchemy",

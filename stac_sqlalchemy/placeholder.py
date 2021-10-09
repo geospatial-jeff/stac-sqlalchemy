@@ -1,4 +1,2 @@
-
-
 def placeholder():
     return True
