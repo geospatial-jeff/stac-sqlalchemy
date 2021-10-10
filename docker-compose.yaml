@@ -23,6 +23,20 @@ services:
     depends_on:
       - database
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database
+    command: |
+      bash -c "./scripts/wait-for-it.sh database:5432 && python -m stac_sqlalchemy.app"
+
 networks:
   default:
     name: stac-sqlalchemy-network
