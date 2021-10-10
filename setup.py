@@ -15,7 +15,13 @@ extras = {
     ],
 }
 
-install_requires: List[str] = ["psycopg2-binary"]
+install_requires: List[str] = [
+    "psycopg2-binary",
+    "stac-fastapi.api",
+    "stac-fastapi.extensions",
+    "stac-fastapi.types",
+    "uvicorn",
+]
 
 setup(
     name="stac-sqlalchemy",

@@ -10,4 +10,4 @@ WORKDIR /app
 COPY . /app
 
 RUN mkdir -p install && \
-    pip install -e .[dev] \
+    pip install -e .[dev]
