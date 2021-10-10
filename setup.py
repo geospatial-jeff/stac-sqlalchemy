@@ -17,10 +17,12 @@ extras = {
 
 install_requires: List[str] = [
     "psycopg2-binary",
+    "geoalchemy2",
     "stac-fastapi.api",
     "stac-fastapi.extensions",
     "stac-fastapi.types",
     "uvicorn",
+    "sqlalchemy[asyncio]",
 ]
 
 setup(
