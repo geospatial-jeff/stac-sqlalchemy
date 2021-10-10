@@ -1,5 +1,7 @@
 import attr
 import stac_fastapi.types.stac as stac_types
+from sqlalchemy import delete
+from sqlalchemy.future import select
 from stac_fastapi.extensions.core.transaction import AsyncBaseTransactionsClient
 
 from stac_sqlalchemy.db.model import Collection, Item
@@ -29,7 +31,23 @@ class TransactionsBackend(AsyncBaseTransactionsClient):
     async def delete_item(
         self, item_id: str, collection_id: str, **kwargs
     ) -> stac_types.Item:
-        pass
+        async with self.session.start() as session:
+            # Fetch the collection
+            stmt = select(Item).where(
+                Item.id == item_id, Item.collection_id == collection_id
+            )
+            result = await session.execute(stmt)
+            item = result.first()
+            stac_json = item[0].stac_json
+
+            # Delete it
+            stmt = delete(Item).where(
+                Item.id == item_id, Item.collection_id == collection_id
+            )
+            await session.execute(stmt)
+            await session.commit()
+
+        return stac_json
 
     async def create_collection(
         self, collection: stac_types.Collection, **kwargs
@@ -48,4 +66,16 @@ class TransactionsBackend(AsyncBaseTransactionsClient):
     async def delete_collection(
         self, collection_id: str, **kwargs
     ) -> stac_types.Collection:
-        pass
+        async with self.session.start() as session:
+            # Fetch the collection
+            stmt = select(Collection).where(Collection.id == collection_id)
+            result = await session.execute(stmt)
+            collection = result.first()
+            stac_json = collection[0].stac_json
+
+            # Delete it
+            stmt = delete(Collection).where(Collection.id == collection_id)
+            await session.execute(stmt)
+            await session.commit()
+
+        return stac_json
