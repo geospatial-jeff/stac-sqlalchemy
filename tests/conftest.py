@@ -3,7 +3,11 @@ import os
 import pytest
 from pystac_client import Client as StacApiClient
 
+from stac_sqlalchemy.app import app
+
 from .utils import create_single_file_stac
+
+from starlette.testclient import TestClient
 
 PLANETARY_COMPUTER_URL = os.getenv(
     "PLANETARY_COMPUTER_URL", "https://planetarycomputer.microsoft.com/api/stac/v1"
@@ -27,3 +31,9 @@ def get_test_data(pc_client):
         ),
         stac_api_client=pc_client,
     )
+
+
+@pytest.fixture
+def test_app():
+    with TestClient(app) as app_client:
+        yield app_client
