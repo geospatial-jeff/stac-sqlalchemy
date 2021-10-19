@@ -12,10 +12,12 @@ extras = {
         "pytest-asyncio<0.11.0",
         "pytest-cov",
         "pre-commit",
+        "pystac-client",
     ],
 }
 
 install_requires: List[str] = [
+    "asyncpg",
     "psycopg2-binary",
     "geoalchemy2",
     "stac-fastapi.api",

@@ -1,13 +1,28 @@
 from stac_fastapi.api.app import StacApi
+from stac_fastapi.extensions.core.transaction import TransactionExtension
 from stac_fastapi.types.config import ApiSettings
 
 from stac_sqlalchemy.backend import SqlalchemyBackend
+from stac_sqlalchemy.db.utils import DatabaseSession
+from stac_sqlalchemy.extensions.transactions import TransactionsBackend
 
 from fastapi import FastAPI
 
 settings = ApiSettings()
 app = FastAPI(openapi_url=settings.openapi_url)
-stac_api = StacApi(settings=settings, client=SqlalchemyBackend(), app=app)
+db_session = DatabaseSession(
+    connection_string="postgresql+asyncpg://username:password@localhost:5432/postgis"
+)
+stac_api = StacApi(
+    settings=settings,
+    client=SqlalchemyBackend(),
+    app=app,
+    extensions=[
+        TransactionExtension(
+            client=TransactionsBackend(session=db_session), settings=settings
+        )
+    ],
+)
 
 
 def run():
